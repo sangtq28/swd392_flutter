@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/api/api_service.dart';
 import 'package:flutter_swd392/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -7,9 +8,86 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
   bool _agreeTerms = false;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+  /// Register API Call
+  Future<bool> registerApiCall() async {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Email and password cannot be empty."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    try {
+      bool success = await ApiService.register(email, password);
+      return success;
+    } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Registration failed. Please try again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return false;
+    }
+  } // end call RegisterCallAPI
+  /// Register User Handling
+  void registerUser() async {
+    setState(() {
+      _isLoading = true; // Show loading
+    });
+
+    bool success = await registerApiCall(); // Call your API
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false; // Hide loading
+      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration failed. Try again!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const Text("Email"),
               const SizedBox(height: 5),
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   hintText: "Enter your email",
                   border: OutlineInputBorder(
@@ -49,6 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const Text("Password"),
               const SizedBox(height: 5),
               TextField(
+                controller: _passwordController,
                 obscureText: !_passwordVisible,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -72,6 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const Text("Confirm Password"),
               const SizedBox(height: 5),
               TextField(
+                controller: _confirmPasswordController,
                 obscureText: !_confirmPasswordVisible,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -128,9 +209,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   onPressed: () {
+                    _isLoading ? null : registerUser(); //Disable button when loading
                     // Handle sign-up logic
                   },
-                  child: const Text(
+                  child: _isLoading ? const CircularProgressIndicator(color: Colors.white) :
+                  const Text(
                     "Sign up",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
