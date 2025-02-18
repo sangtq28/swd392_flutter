@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/screens/pricing_page.dart';
 import 'package:flutter_swd392/screens/register_screen.dart';
+
+import '../api/api_service.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -10,7 +13,77 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  bool _rememberMe = false;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  ///Login API Call
+  Future<bool> loginApiCall() async {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Email and password cannot be empty."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    try {
+      bool success = await ApiService.userLogin(email, password);
+      return success;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Login failed. Please try again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+  }
+  ///Login User Handling
+  void loginUser() async {
+    setState(() {
+      _isLoading = true; // Show loading
+    });
+
+    bool success = await loginApiCall(); // Call your API
+    if (mounted) {
+      setState(() {
+        _isLoading = false; // Hide loading
+      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PricingPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login failed. Try again!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,19 +152,6 @@ class _SignInScreenState extends State<SignInScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _rememberMe,
-                        onChanged: (value) {
-                          setState(() {
-                            _rememberMe = value!;
-                          });
-                        },
-                      ),
-                      Text("Remember Me"),
-                    ],
-                  ),
                   TextButton(
                     onPressed: () {
                       // Navigate to Forgot Password
@@ -111,6 +171,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Sign In
+                    _isLoading ? null : loginUser();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
@@ -119,7 +180,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text(
+                  child: _isLoading ? CircularProgressIndicator(color: Colors.white) :
+                  const Text(
                     "Sign in",
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
