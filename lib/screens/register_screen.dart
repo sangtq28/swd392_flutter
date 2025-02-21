@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swd392/api/api_service.dart';
+import 'package:flutter_swd392/repository/user_repository.dart';
 import 'package:flutter_swd392/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -8,6 +9,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _userRepository = UserRepository();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -15,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _confirmPasswordVisible = false;
   bool _agreeTerms = false;
   bool _isLoading = false;
+  String registerError = '';
 
   @override
   void dispose() {
@@ -24,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
   /// Register API Call
-  Future<bool> registerApiCall() async {
+  void register() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
@@ -35,56 +38,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      return false;
+      return;
     }
-    try {
-      bool success = await ApiService.register(email, password);
-      return success;
-    } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Registration failed. Please try again."),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return false;
-    }
-  } // end call RegisterCallAPI
-  /// Register User Handling
-  void registerUser() async {
     setState(() {
-      _isLoading = true; // Show loading
+      _isLoading = true;
     });
+    final response = await _userRepository.userSignUp(email, password);
+   if(!mounted) return;
+   setState(() {
+      _isLoading = false;
+   });
+   if(response == null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Registration successful!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SignInScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response),
+          backgroundColor: Colors.red,
+        ),
+      );
+   }
 
-    bool success = await registerApiCall(); // Call your API
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false; // Hide loading
-      });
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => SignInScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration failed. Try again!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
+  } // end call RegisterCallAPI
 
 
 
@@ -209,7 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   onPressed: () {
-                    _isLoading ? null : registerUser(); //Disable button when loading
+                    _isLoading ? null : register(); //Disable button when loading
                     // Handle sign-up logic
                   },
                   child: _isLoading ? const CircularProgressIndicator(color: Colors.white) :
@@ -232,10 +216,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       MaterialPageRoute(builder: (context) => SignInScreen()),
                     );
                   },
-                  child: const Text(
-                    "Already have an account? Create an account",
-                    style: TextStyle(color: Colors.blue),
-                  ),
+                  child:
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text("Already have an account? "),
+                        Text(
+                          "Sign in",
+                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    )
                 ),
               ),
             ],

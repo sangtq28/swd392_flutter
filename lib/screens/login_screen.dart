@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/repository/user_repository.dart';
 import 'package:flutter_swd392/screens/pricing_page.dart';
 import 'package:flutter_swd392/screens/register_screen.dart';
 
@@ -10,11 +11,12 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  final _userRepository = UserRepository();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-
+  String loginError = '';
   @override
   void dispose() {
     _emailController.dispose();
@@ -22,69 +24,37 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  ///Login API Call
-  Future<bool> loginApiCall() async {
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Email and password cannot be empty."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false;
-    }
-    try {
-      bool success = await ApiService.userLogin(email, password);
-      return success;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Login failed. Please try again."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false;
-    }
-  }
   ///Login User Handling
   void loginUser() async {
     setState(() {
       _isLoading = true; // Show loading
     });
+    final error = await _userRepository.userLogin(
+        _emailController.text.trim(),
+        _passwordController.text.trim()
+    );
 
-    bool success = await loginApiCall(); // Call your API
-    if (mounted) {
-      setState(() {
-        _isLoading = false; // Hide loading
-      });
-
-      if (success) {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false; // Hide loading
+    });
+      if (error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Login successful!'),
             backgroundColor: Colors.green,
           ),
         );
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => PricingPage()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login failed. Try again!'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          loginError = error;
+        });
       }
     }
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +90,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     borderSide: BorderSide(color: Colors.blueAccent, width: 2),
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  errorText: loginError.isNotEmpty ? loginError : null
                 ),
+
               ),
               SizedBox(height: 16),
 
@@ -144,6 +116,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     },
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  errorText: loginError.isNotEmpty ? loginError : null
                 ),
               ),
               SizedBox(height: 16),

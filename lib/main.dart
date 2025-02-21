@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swd392/screens/login_screen.dart';
 import 'package:flutter_swd392/screens/pricing_page.dart';
+import 'package:flutter_swd392/screens/profile_screen.dart';
 import 'package:flutter_swd392/screens/register_screen.dart';
 void main() {
   runApp(const MyApp());
