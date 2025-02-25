@@ -71,8 +71,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   } // end call RegisterCallAPI
 
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

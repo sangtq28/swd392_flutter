@@ -10,12 +10,16 @@ class ApiService {
       "email": email,
       "password": password
     };
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
-      );
-      return response;
+      try {
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(body),
+        );
+        return response;
+      } catch (e) {
+        throw Exception(e);
+      }
   }
   /// Register API
   static Future<http.Response> register(String email, String password) async {
