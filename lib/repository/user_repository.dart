@@ -5,6 +5,9 @@ import 'package:flutter_swd392/models/response_data.dart';
 import 'package:flutter_swd392/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/user_profile.dart';
+import '../services/storage.service.dart';
+
 
 class UserRepository{
   UserModel? _userModel;
@@ -43,4 +46,45 @@ class UserRepository{
     }
   }
 
-}
+  /// Get User Profile
+  // static Future<ResponseData<UserModel>> getUserProfile(String token) async {
+  //   try {
+  //     print('UserRepository: getUserProfile token: $token');
+  //     final response = await ApiService.getUserProfile(token);
+  //     print('UserRepository: getUserProfile response: ${response.body}');
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+  //       print('statuscode == 200 $jsonResponse');
+  //       return ResponseData<UserModel>.fromJson(jsonResponse,
+  //               (data) => UserModel.fromJson(data as Map<String, dynamic>)
+  //       );
+  //     } else {
+  //       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+  //       return ResponseData<UserModel>(
+  //         status: "error",
+  //         message: jsonResponse["message"] ?? "Failed to fetch user",
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return ResponseData<UserModel>(
+  //       status: "error",
+  //       message: "Exception: $e",
+  //     );
+  //   }
+  Future<UserProfile?> getUserProfile() async {
+    final userAuth = await StorageService.getAuthData();
+    String? token = await userAuth?.token;
+    if (token == null) return null;
+
+    final response = await ApiService.getUserProfile(token);
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData["status"] == "successful") {
+        return UserProfile.fromJson(responseData["data"]);
+      }
+    }
+    return null;
+  }
+  }
+

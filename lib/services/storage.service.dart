@@ -6,17 +6,23 @@ class StorageService {
   static const String authKey = 'auth_data';
 
   /// Save User Authentication Data
-  static Future<void> saveAuthData(UserAuth user) async {
+  static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(authKey, jsonEncode(user.toJson()));
+    await prefs.setString('auth_token', token);
+    print('🔑 Token đã lưu vào Storage: $token'); // Debug
   }
+
 
   /// Retrieve User Authentication Data
   static Future<UserAuth?> getAuthData() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(authKey);
-    if (jsonString == null) return null;
-    return UserAuth.fromJson(jsonDecode(jsonString));
+    final token = prefs.getString('auth_token'); // ✅ Lấy token thẳng, không decode JSON
+
+    if (token == null) return null;
+
+    print('🟢 Token từ Storage: $token');
+
+    return UserAuth(token: token);
   }
 
   /// Clear Authentication Data (For Logout)

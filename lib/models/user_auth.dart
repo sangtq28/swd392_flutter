@@ -1,14 +1,14 @@
 class UserAuth {
-  final int userId;
-  final String email;
+  final int? userId;
+  final String? email;
   final String token;
-  final String role;
+  final String? role;
 
   UserAuth({
-    required this.userId,
-    required this.email,
-    required this.token,
-    required this.role,
+     this.userId,
+     this.email,
+     required this.token,
+     this.role,
   });
 
   factory UserAuth.fromJson(Map<String, dynamic> json) {

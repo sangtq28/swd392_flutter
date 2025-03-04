@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/models/user_auth.dart';
 import 'package:flutter_swd392/models/user_model.dart';
 import 'package:flutter_swd392/repository/user_repository.dart';
 import 'package:flutter_swd392/screens/pricing_page.dart';
 import 'package:flutter_swd392/screens/register_screen.dart';
+import 'package:flutter_swd392/screens/update_profile_screen.dart';
 
 import '../api/api_service.dart';
 import '../services/storage.service.dart';
@@ -26,42 +28,51 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-
-
   ///Login User Handling
   void loginUser() async {
-    bool stt = true;
     setState(() {
       _isLoading = true; // Show loading
       loginError = ''; // Xóa lỗi cũ trước khi login
     });
+
     final response = await _userRepository.userLogin(
-        _emailController.text.trim(),
-        _passwordController.text.trim()
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
     );
 
     if (!mounted) return;
     setState(() {
       _isLoading = false; // Hide loading
     });
-    if(response.data == null){
+
+    if (response.data == null) {
       setState(() {
         loginError = response.message ?? "Login failed";
       });
     } else {
       // Save User Data to Local Storage
       final UserModel user = response.data!;
-      await StorageService.saveAuthData(user.toUserAuth());
-      // Navigate to Pricing Page
+      print('🟢 USER TOKEN Login: ${user.token}');
+
+      UserAuth userAuth = user.toUserAuth();
+      print('🟢 USERAUTH TOKEN Login: ${userAuth.token}');
+
+      // ✅ Kiểm tra nếu token hợp lệ trước khi lưu
+      if (userAuth.token.isNotEmpty) {
+        await StorageService.saveToken(userAuth.token);
+        print('✅ Token đã được lưu vào Local Storage');
+      } else {
+        print('⚠️ Token nhận được rỗng hoặc không hợp lệ');
+        return;
+      }
+
+      // ✅ Điều hướng sang ProfileScreen sau khi lưu token
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PricingPage()),
+        MaterialPageRoute(builder: (context) => ProfileScreen()),
       );
     }
-
-
-
-    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

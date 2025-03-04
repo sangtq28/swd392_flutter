@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/screens/home_screen.dart';
 import 'package:flutter_swd392/screens/login_screen.dart';
-import 'package:flutter_swd392/screens/pricing_page.dart';
 import 'package:flutter_swd392/screens/profile_screen.dart';
-import 'package:flutter_swd392/screens/register_screen.dart';
+import 'package:flutter_swd392/screens/update_profile_screen.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,13 +14,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Register UI',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: PricingPage(), // Load SignIn Screen
+    return GetMaterialApp( // Dùng GetMaterialApp thay vì MaterialApp
+      home: SignInScreen(),
     );
   }
 }
