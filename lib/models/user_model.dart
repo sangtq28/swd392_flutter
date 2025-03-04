@@ -1,3 +1,5 @@
+import 'package:flutter_swd392/models/user_auth.dart';
+
 class UserModel {
   final int userId;
   final String email;
@@ -9,6 +11,7 @@ class UserModel {
   final String createdAt;
   final int membershipPackageId;
   final String uid;
+  final String token;
   final String emailActivation;
 
   UserModel({
@@ -22,6 +25,7 @@ class UserModel {
     required this.createdAt,
     required this.membershipPackageId,
     required this.uid,
+    required this.token,
     required this.emailActivation,
   });
 
@@ -37,6 +41,7 @@ class UserModel {
       createdAt: json['createdAt'],
       membershipPackageId: json['membershipPackageId'],
       uid: json['uid'],
+      token: json['token'],
       emailActivation: json['emailActivation'],
     );
   }
@@ -56,4 +61,14 @@ class UserModel {
       'emailActivation': emailActivation,
     };
   }
+  /// Convert UserModel to UserAuth
+  UserAuth toUserAuth() {
+    return UserAuth(
+      userId: userId,
+      email: email,
+      token: token,
+      role: role,
+    );
+  }
+
 }

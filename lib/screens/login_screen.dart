@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/models/user_model.dart';
 import 'package:flutter_swd392/repository/user_repository.dart';
 import 'package:flutter_swd392/screens/pricing_page.dart';
 import 'package:flutter_swd392/screens/register_screen.dart';
 
 import '../api/api_service.dart';
+import '../services/storage.service.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -24,12 +26,16 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
+
+
   ///Login User Handling
   void loginUser() async {
+    bool stt = true;
     setState(() {
       _isLoading = true; // Show loading
+      loginError = ''; // Xóa lỗi cũ trước khi login
     });
-    final error = await _userRepository.userLogin(
+    final response = await _userRepository.userLogin(
         _emailController.text.trim(),
         _passwordController.text.trim()
     );
@@ -38,22 +44,23 @@ class _SignInScreenState extends State<SignInScreen> {
     setState(() {
       _isLoading = false; // Hide loading
     });
-      if (error == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => PricingPage()),
-        );
-      } else {
-        setState(() {
-          loginError = error;
-        });
-      }
+    if(response.data == null){
+      setState(() {
+        loginError = response.message ?? "Login failed";
+      });
+    } else {
+      // Save User Data to Local Storage
+      final UserModel user = response.data!;
+      await StorageService.saveAuthData(user.toUserAuth());
+      // Navigate to Pricing Page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PricingPage()),
+      );
+    }
+
+
+
     }
   @override
   Widget build(BuildContext context) {
@@ -90,11 +97,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     borderSide: BorderSide(color: Colors.blueAccent, width: 2),
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  errorText: loginError.isNotEmpty ? loginError : null
                 ),
 
               ),
               SizedBox(height: 16),
+
 
               // Password Field
               Text("Password"),
@@ -116,7 +123,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     },
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  errorText: loginError.isNotEmpty ? loginError : null
+                  errorText: loginError.isNotEmpty ? loginError : null, // Hiển thị lỗi nếu có
+
                 ),
               ),
               SizedBox(height: 16),

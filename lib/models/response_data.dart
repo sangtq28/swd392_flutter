@@ -1,23 +1,24 @@
-class ResponseData<T>{
-  final String message;
-  final String status;
+class ResponseData<T> {
+  final String? message;
+  final String? status;
   final T? data;
 
   ResponseData({
-    required this.message,
-    required this.status,
-    required this.data});
+    this.message ,
+     this.status,
+     this.data,
+  });
 
-  factory ResponseData.fromJson(Map<String, dynamic> json){
+  factory ResponseData.fromJson(
+      Map<String, dynamic> json, T Function(Object?) fromJsonT) {
     return ResponseData(
-      message: json['message'],
-      status: json['status'],
-      data: json['data']
+      message: json['message'] as String? ,
+      status: json['status'] as String?,
+      data: json['data'] != null ? fromJsonT(json['data']) : null,
     );
   }
-  Map<String, dynamic> toJson(
-      Object? Function(T value) toJsonT,
-      ) {
+
+  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) {
     return {
       'status': status,
       'message': message,

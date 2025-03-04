@@ -37,11 +37,12 @@ class ApiService {
   }
   ///Get Membership Package
   static Future<http.Response> getMembershipPackage() async{
-    final String url = '$baseUrl/MembershipPackages';
+    final String url = '$baseUrl/MembershipPackages/PricingPlan';
     final response = await http.get(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
     );
+    // print(response.body);
     return response;
   }
   /// Get User Profile API

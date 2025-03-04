@@ -8,20 +8,28 @@ import 'package:http/http.dart' as http;
 
 class UserRepository{
   UserModel? _userModel;
-  ResponseData<UserModel>? _responseData;
   /// User Login method
   Future<ResponseData<UserModel>> userLogin(String email, String password) async {
     //1. Call the API
     final http.Response response = await ApiService.userLogin(email, password);
-    //2. Parse the response
-    final Map<String, dynamic> responseData = jsonDecode(response.body);
     //3. Check if the response is successful
     if(response.statusCode == 200 || response.statusCode == 201){
-     //3.1 Parse the 'data' field into Model (depends on the API response)
-
-      );
+      //3.2 Parse the response body
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      //3.3 Parse the 'data' field into Model (depends on the API response)
+        final user = UserModel.fromJson(responseData['data']);
+        //Return a successful ResponseData<UserModel>
+        return ResponseData<UserModel>.fromJson(
+            responseData,
+            (data) => UserModel.fromJson(data as Map<String, dynamic>)
+        );
     } else {
-
+      final Map<String, dynamic> errorData = jsonDecode(response.body);
+      return ResponseData<UserModel>(
+        message: errorData['message'] ?? "Login failed",
+        status: errorData['status'],
+        data: null,
+      );
     }
   }
   /// User Register method

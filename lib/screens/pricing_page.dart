@@ -1,73 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/models/mempackage_model.dart';
+import 'package:flutter_swd392/repository/packages_repository.dart';
 import '../widgets/pricing_card.dart';
 
-class PricingPage extends StatelessWidget {
+class PricingPage extends StatefulWidget {
   const PricingPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    const backgroundColor = Color(0xFFF7F8FA);
+  State<PricingPage> createState() => _PricingPageState();
+}
 
+class _PricingPageState extends State<PricingPage> {
+  final PackageRepository _packageRepository = PackageRepository();
+  List<MembershipPackageModel> pricingPlans = [];
+  String? errorMessage; // Biến để hiển thị lỗi nếu có
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPricingPlans();
+  }
+
+  Future<void> fetchPricingPlans() async {
+    try {
+      final response = await _packageRepository.getMembershipPackage();
+
+      print("Raw API Response: ${response.toJson((data) => data)}");
+
+      if (response.status?.toLowerCase() == "successful" && (response.data ?? []).isNotEmpty) {
+        setState(() {
+          pricingPlans = response.data!;
+        });
+      } else {
+        setState(() {
+          errorMessage = response.message ?? "Unknown error occurred";
+        });
+      }
+    } catch (e) {
+      print("Unexpected error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Unexpected error: $e"))
+      );
+    }
+  }
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text('Pricing Plans'),
         centerTitle: true,
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal, // Horizontal scroll enabled
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            // First Pricing Card
-            PricingCard(
-              planName: 'Basic',
-              price: 'Free',
-              features: [
-                'Allows tracking growth metrics (height, weight)',
-                'Provides basic growth charts (BMI, trends)',
-                'Access and export data for analysis',
-                'Set and track custom milestones for child growth',
-              ],
-              icon: Icons.space_dashboard_rounded,
-              buttonColor: Colors.deepPurple,
+      body: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const Text(
+              'Tailored pricing plans designed for you',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-
-            SizedBox(width: 16),
-
-            // Second Pricing Card
-            PricingCard(
-              planName: 'Standard',
-              price: '\$19.99',
-              features: [
-                'Allows tracking growth metrics (height, weight)',
-                'Provides access to growth charts (BMI, trends)',
-                'Share data with doctors or family',
-                'Access and export data for analysis',
-                'Set and track custom milestones for child growth',
-              ],
-              icon: Icons.rocket_launch_rounded,
-              buttonColor: Colors.blueAccent,
+            const SizedBox(height: 8),
+            const Text(
+              'All plans include 10+ advanced tools and features. Choose the best plan to fit your needs.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
-
-            SizedBox(width: 16),
-
-            // Third Pricing Card
-            PricingCard(
-              planName: 'Premium',
-              price: '\$49.99',
-              features: [
-                'Allows tracking growth metrics (height, weight)',
-                'Provides access to growth charts (BMI, trends)',
-                'Share data with doctors or family',
-                'Receive premium alerts & reminders',
-                'Access and export data for analysis',
-                'Set and track custom milestones for child development',
-              ],
-              icon: Icons.rocket_rounded,
-              buttonColor: Colors.orangeAccent,
+            const SizedBox(height: 24),
+            if (errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Text(errorMessage!, style: const TextStyle(color: Colors.red)),
+              ),
+            Expanded(
+              child: pricingPlans.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: MediaQuery.of(context).size.width,
+                    minHeight: 0,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: pricingPlans
+                          .map((plan) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: SizedBox(
+                          width: 300,
+                          child: PricingCard(plan: plan),
+                        ),
+                      ))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
