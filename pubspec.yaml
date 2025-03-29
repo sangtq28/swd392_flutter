@@ -38,6 +38,27 @@ dependencies:
   shared_preferences: ^2.5.2
   line_awesome_flutter: ^3.0.1
   get: ^4.7.2
+  intl: ^0.20.2
+  fl_chart: ^0.70.2
+  dropdown_button2: ^2.3.9
+  flutter_animate: ^4.5.0
+  glass_kit: ^4.0.1
+  url_launcher: ^6.1.14
+  google_fonts: ^6.1.0  # Use the latest version available
+  flutter_hooks: ^0.20.1  # Use the latest version
+  loading_animation_widget: ^1.2.0+4
+  image_picker: ^1.1.2
+  http_parser: ^4.0.2
+  pdf: ^3.10.7
+  path_provider: ^2.1.2
+  open_file: ^3.3.2
+  flutter_tts: ^4.2.2
+  audioplayers: ^6.4.0
+  lottie: ^3.0.0
+  glassmorphism: ^2.0.1           # Try an older version
+
+
+
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +81,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/images/truyencobe.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

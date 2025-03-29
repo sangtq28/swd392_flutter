@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_swd392/screens/home_screen.dart';
-import 'package:flutter_swd392/screens/login_screen.dart';
-import 'package:flutter_swd392/screens/profile_screen.dart';
-import 'package:flutter_swd392/screens/update_profile_screen.dart';
+import 'package:flutter_swd392/features/storytelling/screens/story_list_screen.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 void main() {
@@ -14,8 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp( // Dùng GetMaterialApp thay vì MaterialApp
-      home: SignInScreen(),
+    return GetMaterialApp(
+      // Dùng GetMaterialApp thay vì MaterialApp
+      home: StoryListScreen(),
     );
   }
 }

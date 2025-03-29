@@ -2,33 +2,43 @@ class MembershipPackageModel {
   final int id;
   final String name;
   final double price;
-  final String status;
-  final int validityPeriod;
+  final String image;
+  final bool isActive;
   final List<Permission> permissions;
 
   MembershipPackageModel({
     required this.id,
     required this.name,
     required this.price,
-    required this.status,
-    required this.validityPeriod,
+    required this.image,
+    required this.isActive,
     required this.permissions,
   });
 
-  factory MembershipPackageModel.fromJson(Map<String, dynamic> json) {
-
+  factory MembershipPackageModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return MembershipPackageModel(
+        id: 0,
+        name: "Unknown",
+        price: 0,
+        image: "",
+        isActive: false,
+        permissions: [],
+      );
+    }
     return MembershipPackageModel(
-      id: json['membershipPackageId'] ?? 0,
-      name: json['membershipPackageName']?.toString() ?? "Unknown",
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      status: json['status']?.toString() ?? "Unknown",
-      validityPeriod: json['validityPeriod'] ?? 0,
-      permissions: (json['permissions'] as List?)?.map((e) {
-        return Permission.fromJson(e as Map<String, dynamic>);
-      }).toList() ?? [],
+      id: json['membershipPackageId'], // Đảm bảo tên key đúng
+      name: json['membershipPackageName'], // Đúng key từ API
+      price: (json['price'] ?? 0).toDouble(),
+      image: json['image'] ?? "",
+      isActive: json['isActive'] ?? false,
+      permissions: json['permissions'] != null
+          ? (json['permissions'] as List)
+          .map((e) => Permission.fromJson(e))
+          .toList()
+          : [],
     );
   }
-
 }
 
 

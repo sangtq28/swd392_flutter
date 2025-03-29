@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_swd392/features/storytelling/screens/story_list_screen.dart';
+import 'package:flutter_swd392/screens/all_child_indicator_screen.dart';
+import 'package:flutter_swd392/screens/all_child_teeth.dart';
+import 'package:flutter_swd392/screens/create_record_screen.dart';
+import 'package:flutter_swd392/screens/profile_screen.dart';
+import 'package:flutter_swd392/screens/vaccine_record_list.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,9 +19,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Danh sách các trang
   final List<Widget> _pages = [
-    const Center(child: Text('Blog')),
-    const Center(child: Text('Children')),
-    const Center(child: Text('Hồ sơ')),
+    Center(child: StoryListScreen()),
+    Center(child: VaccineRecordListScreen()),
+    Center(child: AllChildIndicatorScreen()),
+    Center(child: AllChildTeeth()),
+    Center(child: UserScreen()),
   ];
 
   void _onItemTapped(int index) {

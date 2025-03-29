@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_swd392/models/mempackage_model.dart';
+import 'package:flutter_swd392/models/membership/mempackage_model.dart';
 import 'package:flutter_swd392/models/response_data.dart';
 import 'package:http/http.dart' as http;
 import '../api/api_service.dart';
@@ -41,7 +41,7 @@ class PackageRepository{
           data: [],
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       return ResponseData<List<MembershipPackageModel>>(
         message: "Error fetching packages: $e",
         status: "Error",

@@ -16,18 +16,28 @@ class BottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.book_sharp),
-          label: 'Blog'
+            icon: Icon(Icons.audio_file),
+            label: 'Story'
+        ),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.vaccines),
+            label: 'Vaccine'
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.group),
+          label: 'Indicators'
         ),
         BottomNavigationBarItem(
             icon: Icon(Icons.child_care),
-            label: 'Children'
+            label: 'Teeth'
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profile'
         ),
+
       ],
+
       currentIndex: selectedIndex,
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
